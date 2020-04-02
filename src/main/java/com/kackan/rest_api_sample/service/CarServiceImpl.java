@@ -2,8 +2,6 @@ package com.kackan.rest_api_sample.service;
 
 import com.kackan.rest_api_sample.model.Car;
 import com.kackan.rest_api_sample.model.TypeOfParameter;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -25,8 +23,8 @@ public class CarServiceImpl implements CarService{
     }
 
     @Override
-    public Optional<List<Car>> getCars() {
-        return Optional.of(cars);
+    public List<Car> getCars() {
+        return cars;
      }
 
     @Override
@@ -35,8 +33,8 @@ public class CarServiceImpl implements CarService{
     }
 
     @Override
-    public Optional<List<Car>> getCarsByColor(String color) {
-        return Optional.of(cars.stream().filter(car -> car.getColor().equals(color)).collect(Collectors.toList()));
+    public List<Car> getCarsByColor(String color) {
+        return cars.stream().filter(car -> car.getColor().equals(color)).collect(Collectors.toList());
     }
 
     @Override

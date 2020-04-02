@@ -30,17 +30,22 @@ public class CarController {
 
     @GetMapping(produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ResponseEntity<CollectionModel<Car>> getCars() {
-        Optional<List<Car>> cars = carService.getCars();
-
-        return getCollectionModelResponseEntity(cars);
+            List<Car>cars=carService.getCars();
+            cars.forEach(car -> car.addIf(!car.hasLinks(),()->linkTo(CarController.class).slash(car.getId()).withSelfRel()));
+            Link link = linkTo(CarController.class).withSelfRel();
+            CollectionModel<Car> carsCollection = new CollectionModel<>(cars, link);
+            return new ResponseEntity<>(carsCollection, HttpStatus.OK);
     }
 
     @GetMapping(path = "/{id}", produces = {MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<EntityModel<Car>> getCarById(@PathVariable Long id) {
         Optional<Car> carById = carService.getCarById(id);
         if (carById.isPresent()) {
+            Car car=carById.get();
             Link link = linkTo(CarController.class).slash(id).withSelfRel();
-            EntityModel<Car> entityCar = new EntityModel<>(carById.get(), link);
+            car.addIf(!car.hasLinks(), () -> link);
+
+            EntityModel<Car> entityCar = new EntityModel<>(car);
             return new ResponseEntity<>(entityCar, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -49,19 +54,12 @@ public class CarController {
 
     @GetMapping(path = "/color", produces = {MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<CollectionModel<Car>> getCarsByColor(@RequestParam(required = false) String color) {
-        Optional<List<Car>> cars = carService.getCarsByColor(color);
-        return getCollectionModelResponseEntity(cars);
-    }
-
-    private ResponseEntity<CollectionModel<Car>> getCollectionModelResponseEntity(Optional<List<Car>> cars) {
-        if (cars.isPresent()) {
-            cars.get().forEach(car -> car.add(linkTo(CarController.class).slash(car.getId()).withSelfRel()));
+            List<Car> cars = carService.getCarsByColor(color);
+            cars.forEach(car -> car.addIf(!car.hasLinks(),()->linkTo(CarController.class).slash(car.getId()).withSelfRel()));
             Link link = linkTo(CarController.class).withSelfRel();
-            CollectionModel<Car> carsCollection = new CollectionModel<>(cars.get(), link);
+            CollectionModel<Car> carsCollection = new CollectionModel<>(cars, link);
             return new ResponseEntity<>(carsCollection, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+
     }
 
     @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE}, produces = {MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE})
@@ -89,10 +87,10 @@ public class CarController {
     public ResponseEntity<EntityModel<Car>> updateOneFieldOfCar(@PathVariable Long id, @RequestBody Map<String, Object> names) {
         Optional<Car> carOp = carService.getCarById(id);
         if (carOp.isPresent()) {
-            Link link = linkTo(CarController.class).slash(carOp.get().getId()).withSelfRel();
-            EntityModel<Car> carEntity = new EntityModel<>(carOp.get(), link);
             carService.updateOneFieldOfCar(id, names);
-
+            Car updated=carService.getCarById(id).get();
+            Link link = linkTo(CarController.class).slash(updated.getId()).withSelfRel();
+            EntityModel<Car> carEntity = new EntityModel<>(updated, link);
             return new ResponseEntity<>(carEntity, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

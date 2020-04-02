@@ -8,11 +8,11 @@ import java.util.Optional;
 
 public interface CarService {
 
-    public Optional<List<Car>> getCars();
-    public Optional<Car> getCarById(Long id);
-    public Optional<List<Car>> getCarsByColor(String color);
-    public Optional<Car> addCar(Car car);
-    public Optional<Car> updateCar(Car car);
-    public Optional<Car> updateOneFieldOfCar(Long id, Map<String,Object> names);
-    public Optional<Car>removeCarById(Long id);
+     List<Car> getCars();
+     Optional<Car> getCarById(Long id);
+     List<Car> getCarsByColor(String color);
+     Optional<Car> addCar(Car car);
+     Optional<Car> updateCar(Car car);
+     Optional<Car> updateOneFieldOfCar(Long id, Map<String,Object> names);
+     Optional<Car>removeCarById(Long id);
 }
